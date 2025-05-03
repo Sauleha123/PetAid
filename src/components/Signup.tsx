@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword,GoogleAuthProvider,signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate, Link } from "react-router-dom"; // Import Link
 import "bootstrap/dist/css/bootstrap.min.css";
+import '../App.css';
 
 interface SignupProps {
   setUser: (user: any) => void;
@@ -27,11 +28,38 @@ const Signup: React.FC<SignupProps> = ({ setUser, onSuccess }) => {
     }
   };
 
+  const handleGoogleSignup = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
+      if (onSuccess) onSuccess();
+      else navigate("/home");
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+  
+
   return (
     <div className="container d-flex flex-column align-items-center justify-content-center min-vh-100">
       {/* Signup Card */}
       <div className="card shadow p-4 text-center" style={{ maxWidth: "400px", width: "100%" }}>
-        <h2 className="fw-bold text-primary mb-3">Get Registerd</h2>
+        <h2 className="fw-bold text-primary mb-3">Get Registered</h2>
+
+
+        <div className="mt-4">
+          <button onClick={handleGoogleSignup} className="btn google-btn w-100 mb-3">
+          <i className="bi bi-google me-2"></i> Sign up with Google
+          </button>
+        </div>
+
+        {/* OR Divider */}
+        <div className="or-divider d-flex align-items-center text-muted my-3">
+          <hr className="flex-grow-1" />
+          <span className="px-2 fw-semibold">OR</span>
+          <hr className="flex-grow-1" />
+        </div>
 
         {/* Signup Form */}
         <form onSubmit={handleSignup} className="mb-3">

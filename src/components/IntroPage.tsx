@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import logo from "./2.png"; // Ensure you have a logo file in the assets folder
+import '../App.css';
 
 const IntroPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
@@ -17,7 +18,7 @@ const IntroPage: React.FC = () => {
         <Link to="/login" className="btn btn-primary me-2 shadow-sm px-4 mb-2 mb-md-0">
           Log In
         </Link>
-        <Link to="/signup" className="btn btn-outline-secondary shadow-sm px-4">
+        <Link to="/signup" className="btn google-btn shadow-sm px-4">
           Sign Up
         </Link>
       </div>

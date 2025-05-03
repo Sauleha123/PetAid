@@ -36,3 +36,16 @@
     transform: rotate(360deg);
   }
 }
+
+.google-btn {
+  background-color: white;
+  color: #0d6efd; /* Bootstrap primary */
+  border: 1px solid #0d6efd;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.google-btn:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
