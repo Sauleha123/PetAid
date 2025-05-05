@@ -1,11 +1,11 @@
 import React, { useState, useEffect, Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom";
+import {Routes,Route,Navigate,Link,useLocation,} from "react-router-dom";
 import { onAuthStateChanged, User, signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Spinner from "react-bootstrap/Spinner";
 import localLogo from "./logo.png";
-import "bootstrap-icons/font/bootstrap-icons.css"; // For Bootstrap icons (LinkedIn)
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 // Lazy load components
 const Auth = lazy(() => import("./components/Auth"));
@@ -22,59 +22,68 @@ const ChatBox = lazy(() => import("./components/ChatBox"));
 
 const App = () => {
   const [user, setUser] = useState<User | null>(null);
+  const location = useLocation();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => setUser(user));
     return () => unsubscribe();
   }, []);
 
-  // Generate a chatId based on user (e.g., for vet consultation chat)
   const generateChatId = () => {
     if (!user) return "";
-    // Example: Use user.uid as investorId and a fixed vetId (e.g., "vet123")
-    const vetId = "vet123"; // Replace with actual vet ID or logic to fetch vet ID
-    return `${user.uid}_${vetId}`; // Format: investorId_founderId (e.g., userId_vetId)
+    const vetId = "vet123";
+    return `${user.uid}_${vetId}`;
   };
 
+  // List of routes where padding is required
+  const routesWithTopPadding = [
+    "/home",
+    "/lessons",
+    "/ai-check",
+    "/shop",
+    "/vet-consultation",
+    "/pet-recommendation",
+    "/pet-mood-detector",
+    "/chat",
+  ];
+
+  // Check if current path needs padding (can also refine with includes or regex for dynamic routes like `/chat/:id`)
+  const needsPadding = routesWithTopPadding.some((path) =>
+    location.pathname.startsWith(path)
+  );
+
   return (
-    <Router>
-      <div className="d-flex flex-column min-vh-100">
-        {user && <Navbar user={user} setUser={setUser} chatId={generateChatId()} />}
+    <div className="d-flex flex-column min-vh-100">
+      {user && <Navbar user={user} setUser={setUser} chatId={generateChatId()} />}
 
-        <Suspense
-          fallback={
-            <div className="d-flex justify-content-center align-items-center vh-100">
-              <Spinner animation="border" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </Spinner>
-            </div>
-          }
-        >
-          <main className="flex-grow-1">
-            <Routes>
-              {/* Intro Page */}
-              <Route path="/" element={<IntroPage />} />
+      <Suspense
+        fallback={
+          <div className="d-flex justify-content-center align-items-center vh-100">
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </div>
+        }
+      >
+        <main className="flex-grow-1" style={{ paddingTop: needsPadding ? "65px" : "0" }}>
+          <Routes>
+            <Route path="/" element={<IntroPage />} />
+            <Route path="/login" element={user ? <Navigate to="/home" /> : <Auth setUser={setUser} />} />
+            <Route path="/signup" element={user ? <Navigate to="/home" /> : <Signup setUser={setUser} />} />
+            <Route path="/home" element={user ? <Home user={user} /> : <Navigate to="/login" />} />
+            <Route path="/lessons" element={user ? <Lessons /> : <Navigate to="/login" />} />
+            <Route path="/ai-check" element={user ? <AIAssistant /> : <Navigate to="/login" />} />
+            <Route path="/shop" element={user ? <Shop /> : <Navigate to="/login" />} />
+            <Route path="/vet-consultation" element={user ? <VetConsultation /> : <Navigate to="/login" />} />
+            <Route path="/pet-recommendation" element={user ? <PetRecommendation /> : <Navigate to="/login" />} />
+            <Route path="/pet-mood-detector" element={user ? <PetMoodDetector /> : <Navigate to="/login" />} />
+            <Route path="/chat/:chatId" element={user ? <ChatBox /> : <Navigate to="/login" />} />
+          </Routes>
+        </main>
+      </Suspense>
 
-              {/* Auth Routes */}
-              <Route path="/login" element={user ? <Navigate to="/home" /> : <Auth setUser={setUser} />} />
-              <Route path="/signup" element={user ? <Navigate to="/home" /> : <Signup setUser={setUser} />} />
-
-              {/* Protected Routes */}
-              <Route path="/home" element={user ? <Home user={user} /> : <Navigate to="/login" />} />
-              <Route path="/lessons" element={user ? <Lessons /> : <Navigate to="/login" />} />
-              <Route path="/ai-check" element={user ? <AIAssistant /> : <Navigate to="/login" />} />
-              <Route path="/shop" element={user ? <Shop /> : <Navigate to="/login" />} />
-              <Route path="/vet-consultation" element={user ? <VetConsultation /> : <Navigate to="/login" />} />
-              <Route path="/pet-recommendation" element={user ? <PetRecommendation /> : <Navigate to="/login" />} />
-              <Route path="/pet-mood-detector" element={user ? <PetMoodDetector /> : <Navigate to="/login" />} />
-              <Route path="/chat/:chatId" element={user ? <ChatBox /> : <Navigate to="/login" />} />
-            </Routes>
-          </main>
-        </Suspense>
-
-        <Footer />
-      </div>
-    </Router>
+      <Footer />
+    </div>
   );
 };
 
@@ -83,7 +92,7 @@ const Navbar = ({ user, setUser, chatId }: { user: User; setUser: (user: User | 
     try {
       await signOut(auth);
       setUser(null);
-      window.location.href = "/"; // Redirect to IntroPage
+      window.location.href = "/";
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -93,6 +102,9 @@ const Navbar = ({ user, setUser, chatId }: { user: User; setUser: (user: User | 
     <nav
       className="navbar navbar-expand-lg navbar-light"
       style={{
+        position: "fixed",
+        top: 0,
+        width: "100%",
         backgroundColor: "rgba(255, 255, 255, 0.8)",
         backdropFilter: "blur(10px)",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
@@ -176,25 +188,19 @@ const Footer = () => {
     >
       <div className="container-fluid px-4">
         <div className="row align-items-center">
-          {/* Copyright Notice */}
           <div className="col-12 col-md-6 text-center text-md-start mb-3 mb-md-0">
             <p className="text-dark mb-0">
               © {new Date().getFullYear()} PetAid. All rights reserved.
             </p>
           </div>
-
-          {/* Contact Information and LinkedIn Icon */}
           <div className="col-12 col-md-6">
             <div className="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-end gap-3">
-              {/* Email ID */}
               <a
                 href="mailto:madiwalesauleha@gmail.com"
                 className="text-dark text-decoration-none hover:text-blue-600 transition-colors duration-200"
               >
                 madiwalesauleha@gmail.com
               </a>
-
-              {/* LinkedIn Icon (Bootstrap) */}
               <a
                 href="https://www.linkedin.com/in/sauleha-madiwale-69325a27b"
                 target="_blank"

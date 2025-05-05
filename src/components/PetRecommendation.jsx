@@ -4,6 +4,7 @@ import axios from "axios";
 const PetRecommendation = () => {
   const [formData, setFormData] = useState({
     category: "",
+    climaticCondition: "",
     lifestyle: "",
     space: "",
     experience: "",
@@ -23,6 +24,14 @@ const PetRecommendation = () => {
     "Ferret",
   ];
 
+  const climateOptions = [
+    "Tropical (Humid & Warm)",
+    "Arid (Dry & Hot)",
+    "Temperate (Mild)",
+    "Cold (Snowy/Chilly)",
+    "Wet & Rainy",
+  ];
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -38,6 +47,7 @@ const PetRecommendation = () => {
     - Pet Category: ${formData.category}
     - Lifestyle: ${formData.lifestyle}
     - Living space: ${formData.space}
+    - Climate: ${formData.climaticCondition}
     - Pet experience: ${formData.experience}
     Provide the response in JSON format with fields: category, breed, commonName, imageSearchUrl.`;
 
@@ -224,6 +234,37 @@ const PetRecommendation = () => {
               <option value="Balanced">Balanced</option>
             </select>
           </div>
+
+          {/* Climate Dropdown */}
+          <div style={{ marginBottom: "1.5rem" }}>
+            <label style={{
+                display: "block",
+                color: "#333",
+                fontSize: "1.1rem",
+                marginBottom: "0.5rem",
+              }}>Climate</label>
+            <select
+              name="climaticCondition"
+              value={formData.climaticCondition}
+              onChange={handleChange}
+              required
+              style={{
+                width: "100%",
+                padding: "0.75rem",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                fontSize: "1rem",
+              }}
+            >
+              <option value="">Select...</option>
+              {climateOptions.map((climate) => (
+                <option key={climate} value={climate}>
+                  {climate}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div style={{ marginBottom: "1.5rem" }}>
             <label
               style={{
@@ -331,11 +372,18 @@ const PetRecommendation = () => {
             >
               <strong>Breed:</strong> {recommendation.breed}
             </p>
+            <p style={{
+                color: "#333",
+                fontSize: "1rem",
+                marginBottom: "0.5rem",
+                }}>
+                  <strong>Climate Considered:</strong> {formData.climaticCondition}
+            </p>
             <p
               style={{
                 color: "#333",
                 fontSize: "1rem",
-                marginBottom: "1rem",
+                marginBottom: "0.5rem",
               }}
             >
               <strong>Common Name:</strong> {recommendation.commonName}

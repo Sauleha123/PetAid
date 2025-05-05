@@ -305,17 +305,7 @@ const ChatBox: React.FC = () => {
               margin: 0,
             }}>Pet Pals Community Chat</h2>
           </div>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center',
-            gap: '0.5rem', 
-            backgroundColor: 'rgba(255, 255, 255, 0.2)', 
-            padding: '0.5rem 1rem', 
-            borderRadius: '2rem',
-          }}>
-            <Users size={18} />
-            <span style={{ fontWeight: 500 }}>{onlineUsers} pet lovers online</span>
-          </div>
+          
         </div>
         
         {error && (
